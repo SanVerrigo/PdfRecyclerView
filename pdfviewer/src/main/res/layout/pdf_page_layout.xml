@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_marginStart="20dp"
+    android:layout_marginEnd="20dp"
+    android:layout_marginBottom="5dp"
+    tools:layout_height="100dp"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="8dp"
+    android:layout_height="0dp">
+
+  <ImageView
+      android:id="@+id/page_img"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"/>
+
+  <ProgressBar
+      android:id="@+id/progress_indicator"
+      android:layout_gravity="center"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"/>
+
+</com.google.android.material.card.MaterialCardView>
