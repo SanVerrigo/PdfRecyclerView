@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Pdf Viewer</string>
+    <string name="asset_title">Assets: %s</string>
 </resources>

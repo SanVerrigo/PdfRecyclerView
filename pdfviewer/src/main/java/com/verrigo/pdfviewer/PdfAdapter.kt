@@ -9,7 +9,7 @@ import androidx.core.view.marginEnd
 import androidx.core.view.marginStart
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.verrigo.pdfviewer.databinding.PdfPageLayoutBinding
+import com.verrigo.pdfviewer.databinding.PrvPageLayoutBinding
 import kotlin.math.roundToInt
 
 class PdfAdapter : RecyclerView.Adapter<PdfAdapter.ViewHolder>() {
@@ -30,7 +30,7 @@ class PdfAdapter : RecyclerView.Adapter<PdfAdapter.ViewHolder>() {
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(
-        PdfPageLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        PrvPageLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     )
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -39,17 +39,17 @@ class PdfAdapter : RecyclerView.Adapter<PdfAdapter.ViewHolder>() {
             val ratio: Double =
                 bitmap.width.div((widthInPx - root.marginStart - root.marginEnd) * 1.0)
             root.layoutParams.height = (bitmap.height / ratio).roundToInt()
-            pageImg.layoutParams.height = (bitmap.height / ratio).roundToInt()
+            prvPageImg.layoutParams.height = (bitmap.height / ratio).roundToInt()
             if (position in bitmapPoolRange) {
-                progressIndicator.isGone = true
+                prvProgressIndicator.isGone = true
                 Glide.with(root.context)
                     .load(bitmap)
-                    .into(pageImg)
+                    .into(prvPageImg)
             } else {
-                progressIndicator.isVisible = true
+                prvProgressIndicator.isVisible = true
                 Glide.with(root.context)
                     .load(placeholderBitmap)
-                    .into(pageImg)
+                    .into(prvPageImg)
             }
         }
     }
@@ -63,5 +63,5 @@ class PdfAdapter : RecyclerView.Adapter<PdfAdapter.ViewHolder>() {
         this.widthInPx = width
     }
 
-    class ViewHolder(val binding: PdfPageLayoutBinding) : RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(val binding: PrvPageLayoutBinding) : RecyclerView.ViewHolder(binding.root)
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="prv_marginTop">0dp</dimen>
+    <dimen name="prv_marginBottom">5dp</dimen>
+    <dimen name="prv_marginStart">20dp</dimen>
+    <dimen name="prv_marginEnd">20dp</dimen>
+
+    <dimen name="prv_cardCornerRadius">0dp</dimen>
+    <dimen name="prv_cardElevation">8dp</dimen>
+</resources>
