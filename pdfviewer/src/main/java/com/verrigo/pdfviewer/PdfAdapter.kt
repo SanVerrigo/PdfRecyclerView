@@ -12,9 +12,9 @@ import com.bumptech.glide.Glide
 import com.verrigo.pdfviewer.databinding.PrvPageLayoutBinding
 import kotlin.math.roundToInt
 
-class PdfAdapter : RecyclerView.Adapter<PdfAdapter.ViewHolder>() {
+internal class PdfAdapter : RecyclerView.Adapter<PdfAdapter.ViewHolder>() {
 
-    var bitmapPoolRange: IntRange = IntRange.EMPTY
+    var bitmapPoolPagesRange: IntRange = IntRange.EMPTY
 
     var bitmapPool: MutableList<Bitmap?> = mutableListOf()
 
@@ -40,7 +40,7 @@ class PdfAdapter : RecyclerView.Adapter<PdfAdapter.ViewHolder>() {
                 bitmap.width.div((widthInPx - root.marginStart - root.marginEnd) * 1.0)
             root.layoutParams.height = (bitmap.height / ratio).roundToInt()
             prvPageImg.layoutParams.height = (bitmap.height / ratio).roundToInt()
-            if (position in bitmapPoolRange) {
+            if (position in bitmapPoolPagesRange) {
                 prvProgressIndicator.isGone = true
                 Glide.with(root.context)
                     .load(bitmap)

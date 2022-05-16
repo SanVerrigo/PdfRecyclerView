@@ -8,41 +8,39 @@ import android.os.ParcelFileDescriptor
 import android.util.AttributeSet
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.gemarktech.x5group.findIntersection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.max
 import kotlin.math.min
 
-class PdfViewer @JvmOverloads constructor(
+class PdfRecyclerView @JvmOverloads constructor(
     context: Context,
     defAttrs: AttributeSet? = null,
     defStyleRes: Int = 0
 ) : RecyclerView(context, defAttrs, defStyleRes) {
 
-    private val mainHandler = Handler(context.mainLooper)
-
-    private val pdfAdapter = PdfAdapter()
+    private val mainHandler: Handler = Handler(context.mainLooper)
+    private val pdfAdapter: PdfAdapter = PdfAdapter()
 
     init {
         isSaveEnabled = true
         adapter = pdfAdapter
         layoutManager = LinearLayoutManager(context)
-        setPadding(0, 20, 0, 40)
         clipToPadding = false
     }
 
-    private var lastSeenItemPos = -1
-    private var savedLastSeenItemPos = -1
-    private var startedDebounce = false
+    private var lastSeenItemPos: Int = -1
+    private var savedLastSeenItemPos: Int = -1
+    private var startedDebounce: Boolean = false
 
-    private val executor = Executors.newSingleThreadExecutor()
-    private val scope = CoroutineScope(executor.asCoroutineDispatcher())
+    private val executor: ExecutorService = Executors.newSingleThreadExecutor()
+    private val scope: CoroutineScope = CoroutineScope(executor.asCoroutineDispatcher())
 
     private var pdfFile: File? = null
     private lateinit var pdfRenderer: PdfRenderer
@@ -52,16 +50,12 @@ class PdfViewer @JvmOverloads constructor(
         waitMs = 20L, coroutineScope = scope, ::loadNewPages
     )
 
-    fun setPdfFile(pdfFile: File): PdfViewer {
+    fun setPdfFile(pdfFile: File): PdfRecyclerView {
         this.pdfFile = pdfFile
-        try {
-            pdfFileDescriptor =
-                ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY).also {
-                    pdfRenderer = PdfRenderer(it)
-                }
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-        }
+        pdfFileDescriptor =
+            ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY).also {
+                pdfRenderer = PdfRenderer(it)
+            }
         return this
     }
 
@@ -76,10 +70,13 @@ class PdfViewer @JvmOverloads constructor(
             pdfAdapter.bitmapPool = MutableList(pdfRenderer.pageCount) { null }
             pdfAdapter.notifyDataSetChanged()
             scope.launch {
-                pdfAdapter.bitmapPoolRange = 0..min(pdfRenderer.pageCount - 1, INITIAL_PAGE_COUNT)
-                for (i in pdfAdapter.bitmapPoolRange) {
+                val range = 0..min(pdfRenderer.pageCount - 1, INITIAL_PAGE_COUNT)
+                pdfAdapter.bitmapPoolPagesRange = range
+                loadRange(range)
+                // todo: bottom is deprecated?
+                /*for (i in pdfAdapter.bitmapPoolPagesRange) {
                     addLoadedBitmapAndNotify(createBitmap(i), i)
-                }
+                }*/
             }
         }
     }
@@ -107,9 +104,12 @@ class PdfViewer @JvmOverloads constructor(
     private fun onScrollChange() {
         val linearLayoutManager = layoutManager as LinearLayoutManager
         val lastItemPos = linearLayoutManager.findLastVisibleItemPosition()
-        if (lastItemPos == lastSeenItemPos) return
+        if (lastItemPos == lastSeenItemPos) {
+            return
+        }
+
         lastSeenItemPos = lastItemPos
-        if (!startedDebounce) {
+        if (!startedDebounce) { // todo: is this flag yet needed?
             startedDebounce = true
         }
         onLastItemPosChange(lastItemPos)
@@ -125,48 +125,44 @@ class PdfViewer @JvmOverloads constructor(
         val end = min(lastSeenPagePos + PAGES_AFTER_LAST_SEEN, pdfRenderer.pageCount - 1)
 
         val newRange = start..end
-        val oldRange = pdfAdapter.bitmapPoolRange
+        val oldRange = pdfAdapter.bitmapPoolPagesRange
 
         val rangeToLeave = oldRange.findIntersection(newRange)
         val rangeToDelete = oldRange - rangeToLeave
         val rangeToLoad = newRange - rangeToLeave
 
-        pdfAdapter.bitmapPoolRange = newRange
+        pdfAdapter.bitmapPoolPagesRange = newRange
 
         deleteRange(rangeToDelete)
         loadRange(rangeToLoad)
     }
 
-    private fun loadRange(rangeToLoad: List<Int>) {
+    private fun loadRange(rangeToLoad: Iterable<Int>) {
+        val rangeSize = rangeToLoad.size()
+        if (rangeSize == 0) {
+            return
+        }
         scope.launch {
             for (i in rangeToLoad) {
                 pdfAdapter.bitmapPool[i] = createBitmap(i)
             }
-            if (rangeToLoad.isNotEmpty()) {
-                mainHandler.post {
-                    pdfAdapter.notifyItemRangeChanged(rangeToLoad.first(), rangeToLoad.size)
-                }
+            mainHandler.post {
+                pdfAdapter.notifyItemRangeChanged(rangeToLoad.first(), rangeSize)
             }
         }
     }
 
     private fun deleteRange(rangeToDelete: List<Int>) {
-        scope.launch {
+        if (rangeToDelete.isEmpty()) {
+            return
+        }
+        scope.launch { // todo: do we need to delete bitmaps in scope? not in main thread directly?
             for (i in rangeToDelete) {
                 pdfAdapter.bitmapPool[i] = null
             }
-            if (rangeToDelete.isNotEmpty()) {
-                mainHandler.post {
-                    pdfAdapter.notifyItemRangeChanged(rangeToDelete.first(), rangeToDelete.size)
-                }
+            mainHandler.post {
+                pdfAdapter.notifyItemRangeChanged(rangeToDelete.first(), rangeToDelete.size)
             }
-        }
-    }
-
-    private fun addLoadedBitmapAndNotify(bitmap: Bitmap, ind: Int) {
-        pdfAdapter.bitmapPool[ind] = bitmap
-        mainHandler.post {
-            pdfAdapter.notifyItemChanged(ind)
         }
     }
 
@@ -180,7 +176,7 @@ class PdfViewer @JvmOverloads constructor(
 
     companion object {
         private const val INITIAL_PAGE_COUNT = 10
-        private const val PAGES_BEFORE_LAST_SEEN = 4
-        private const val PAGES_AFTER_LAST_SEEN = 4
+        private const val PAGES_BEFORE_LAST_SEEN = 4 // delta to load before
+        private const val PAGES_AFTER_LAST_SEEN = 4 // delta to load after
     }
 }
