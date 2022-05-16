@@ -5,9 +5,12 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.verrigo.pdfviewer.PdfViewer
+    <com.verrigo.pdfviewer.PdfRecyclerView
         android:id="@+id/pdf_viewer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,12 +11,24 @@
         android:id="@+id/btn_small_pdf_asset"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Small pdf (asset)"/>
+        android:text="Small pdf (asset): 1 page"/>
+
+    <Button
+        android:id="@+id/btn_medium10_pdf_asset"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Medium pdf (asset): 10 pages"/>
+
+    <Button
+        android:id="@+id/btn_medium82_pdf_asset"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Medium pdf (asset): 82 pages"/>
 
     <Button
         android:id="@+id/btn_large_pdf_asset"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Large pdf (asset)"/>
+        android:text="Large pdf (asset): 331 pages"/>
 
 </LinearLayout>

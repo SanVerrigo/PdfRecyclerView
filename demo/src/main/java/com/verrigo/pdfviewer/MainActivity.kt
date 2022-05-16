@@ -14,8 +14,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         with (binding) {
-            btnSmallPdfAsset.setOnClickListener { openAsset("sample.pdf") }
-            btnLargePdfAsset.setOnClickListener { openAsset("sample_big.pdf") }
+            btnSmallPdfAsset.setOnClickListener { openAsset("sample_small.pdf") }
+            btnMedium10PdfAsset.setOnClickListener { openAsset("sample_medium_10pages.pdf") }
+            btnMedium82PdfAsset.setOnClickListener { openAsset("sample_medium_82pages.pdf") }
+            btnLargePdfAsset.setOnClickListener { openAsset("sample_large.pdf") }
         }
     }
 
